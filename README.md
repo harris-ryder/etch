@@ -15,13 +15,36 @@ bun install
 bun dev
 ```
 
-That starts the backend on <http://localhost:8787> and the frontend on
-<http://localhost:3000>. Open the frontend, describe a dream, press **Draw**.
+That starts one Next.js server on <http://localhost:3000>. It serves the page
+and, under `/api`, the backend: `frontend/app/api/[...route]/route.ts` hands
+every `/api` request to the Hono app from the `backend` package. Open the page,
+describe a dream, press Enter.
 
 A model API key is required: copy `backend/.env.example` to `backend/.env` and
 set `OPENROUTER_API_KEY` (or `OPENAI_API_KEY`). There is no offline fallback;
-without a key the page says so and `POST /draw` answers 503. Restart `bun dev`
-after changing `.env`.
+without a key the page says so and `POST /api/draw` answers 503. Restart
+`bun dev` after changing `.env`. (`frontend/next.config.ts` loads `backend/.env`
+when it exists, so the key stays in that one git-ignored file.)
+
+## Deploy to Vercel
+
+It is a single project: the page and the API deploy together.
+
+1. Push the repository to GitHub and import it in Vercel.
+2. Set the project's **Root Directory** to `frontend`. Leave "Include files
+   outside the root directory" on, since the app compiles the `backend`
+   package from the workspace.
+3. Add the environment variables from `backend/.env.example` that you use:
+   `OPENROUTER_API_KEY`, and optionally `OPENROUTER_TEXT_MODEL`,
+   `OPENROUTER_IMAGE_MODEL`, `ETCH_PROVIDER`.
+4. Deploy. `/api/health` should report the provider and models.
+
+A drawing takes a minute or more, so the route asks for a 300 second limit
+(`maxDuration` in the route file). Anyone who can open the site can spend the
+API key, so put it behind Vercel's deployment protection or cap the key's spend.
+
+The backend can still run on its own with `bun run --cwd backend dev`
+(port 8787); nothing in the frontend uses that server.
 
 Below the screen the page prints a receipt of the run: the prompt, the
 planner's instructions and raw reply, the image prompt and the picture it
@@ -50,7 +73,6 @@ cut, so it needs a licence before the site is published.
 
 ```
 etch/
-├── scripts/dev.ts            starts both apps
 ├── backend/                  Bun + Hono, no database, nothing written to disk
 │   ├── src/
 │   │   ├── app.ts            routes; exports AppType for the frontend
@@ -155,7 +177,8 @@ and then one `part` per region of it. `connector` runs from the end of the
 previous part to `points[0]` and is empty for the first part. `trace` records
 what splitting, tracing and linking did for the part. The full types are in
 `backend/src/types.ts`. `GET /health` reports the provider and models in use.
-CORS allows `CORS_ORIGIN` (default `http://localhost:3000`).
+Inside Next these routes sit under `/api`, on the page's own origin, so CORS
+does not come into it. `CORS_ORIGIN` only matters to the standalone backend.
 
 ## Swapping providers and going offline
 

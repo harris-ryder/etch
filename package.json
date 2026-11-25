@@ -6,9 +6,10 @@
     "frontend"
   ],
   "scripts": {
-    "dev": "bun scripts/dev.ts",
+    "dev": "bun run --cwd frontend dev",
     "test": "bun test",
     "typecheck": "bun run --filter '*' typecheck",
-    "preview": "bun run --cwd backend preview"
+    "preview": "bun run --cwd backend preview",
+    "build": "bun run --cwd frontend build"
   }
 }

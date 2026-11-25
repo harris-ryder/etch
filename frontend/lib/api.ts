@@ -1,7 +1,8 @@
 import { hc } from "hono/client";
 import type { AppType, DrawEvent, Style } from "@etch/backend";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8787";
+/** The backend is served by this same Next app, under /api (see app/api/[...route]/route.ts). */
+export const API_URL = "/api";
 
 /**
  * Hono RPC client. `AppType` comes straight from the backend's route
