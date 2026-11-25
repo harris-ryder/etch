@@ -36,10 +36,10 @@ export function providersFromEnv(env: Record<string, string | undefined> = proce
     const config: OpenRouterConfig = {
       apiKey: openRouterKey!,
       baseUrl: value("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1",
-      textModel: value("OPENROUTER_TEXT_MODEL") ?? "anthropic/claude-sonnet-5.5",
+      textModel: value("OPENROUTER_TEXT_MODEL") ?? "openai/gpt-6-luna",
       imageModel,
       // Only the OpenAI image models are known to take `quality`; set the variable to force it elsewhere.
-      imageQuality: value("OPENROUTER_IMAGE_QUALITY") ?? (imageModel.startsWith("openai/") ? "high" : undefined),
+      imageQuality: value("OPENROUTER_IMAGE_QUALITY") ?? (imageModel.startsWith("openai/") ? "medium" : undefined),
     };
     return {
       name: "openrouter",
@@ -55,7 +55,7 @@ export function providersFromEnv(env: Record<string, string | undefined> = proce
       baseUrl: value("OPENAI_BASE_URL") ?? "https://api.openai.com/v1",
       textModel: value("OPENAI_TEXT_MODEL") ?? "gpt-4.1-mini",
       imageModel: value("OPENAI_IMAGE_MODEL") ?? "gpt-image-1",
-      imageQuality: value("OPENAI_IMAGE_QUALITY") ?? "high",
+      imageQuality: value("OPENAI_IMAGE_QUALITY") ?? "medium",
     };
     return {
       name: "openai",

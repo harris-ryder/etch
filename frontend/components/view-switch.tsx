@@ -5,8 +5,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 export type View = "drawing" | "thinking";
 
 /** Sizes in em, so the control scales with the text. */
-const UP = 3.35;
-const DOWN = 2.6;
+const UP = 3.59;
+const DOWN = 2.84;
 /** Radius of the two outer top corners, and the most the curves of the middle step may have. */
 const CORNER = 0.62;
 const SEAM = 0.42;

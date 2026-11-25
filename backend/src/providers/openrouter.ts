@@ -6,7 +6,7 @@ import { OpenAIScenePlanner, postJson, readImage, readUsage, type ApiUsage } fro
 export interface OpenRouterConfig {
   apiKey: string;
   baseUrl: string;
-  /** Any chat model slug from openrouter.ai/models, e.g. "anthropic/claude-sonnet-5.5". */
+  /** Any chat model slug from openrouter.ai/models, e.g. "openai/gpt-6-luna". */
   textModel: string;
   /** Any slug from GET /api/v1/images/models, e.g. "openai/gpt-image-2". */
   imageModel: string;

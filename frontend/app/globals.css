@@ -151,7 +151,7 @@ input {
   grid-template-columns: 1fr 1fr;
   align-items: end;
   /* Taller than the raised button, leaving headroom for the bounce. */
-  height: 3.9em;
+  height: 4.14em;
   transform: translateX(-50%);
   animation: fade-in 1200ms ease both;
 }
@@ -169,9 +169,10 @@ input {
   align-items: center;
   justify-content: center;
   /* Set before the script runs, so the first paint is already right. */
-  height: 2.6em;
-  /* The typeface sits high in its line box; a little more room on top centres the label. */
-  padding: 0.22em 1.45em 0;
+  height: 2.84em;
+  /* Measured, not guessed: with this much on top, the pressed button has the same
+     space from its top line to the capitals as from the baseline to the window's edge. */
+  padding: 0.27em 1.45em 0;
   color: var(--color-muted);
   cursor: pointer;
   transition: color 300ms;
