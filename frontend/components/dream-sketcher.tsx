@@ -5,9 +5,9 @@ import { fetchHealth, streamDraw } from "@/lib/api";
 import { EtchEngine, type Stroke } from "@/lib/engine";
 import { Receipt, type ReceiptData } from "./receipt";
 import { Screen } from "./screen";
+import { ViewSwitch, type View } from "./view-switch";
 
 type Status = "idle" | "planning" | "imaging" | "drawing" | "done" | "error";
-type View = "drawing" | "thinking";
 
 const SHAKE_MS = 500;
 /** How long the submitted prompt takes to fade from the screen. Matches `.prompt-field.is-fading`. */
@@ -252,15 +252,7 @@ export function DreamSketcher() {
 
       {/* Appears once the first dream is sent, and stays. */}
       {receipt && (
-        <div role="tablist" aria-label="View" data-view={view} className="view-pill fixed bottom-6 left-1/2 z-10">
-          {/* The dark marker that slides under whichever option is selected. */}
-          <span aria-hidden className="view-pill-thumb" />
-          {(["drawing", "thinking"] as const).map((option) => (
-            <button key={option} type="button" role="tab" aria-selected={view === option} onClick={() => showView(option)}>
-              {option === "drawing" ? "Drawing" : "Thinking"}
-            </button>
-          ))}
-        </div>
+        <ViewSwitch view={view} onChange={showView} />
       )}
     </main>
   );
