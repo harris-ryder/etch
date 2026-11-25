@@ -1,0 +1,14 @@
+{
+  "name": "etch",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "bun scripts/dev.ts",
+    "test": "bun test",
+    "typecheck": "bun run --filter '*' typecheck",
+    "preview": "bun run --cwd backend preview"
+  }
+}

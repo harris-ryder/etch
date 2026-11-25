@@ -1,0 +1,398 @@
+@import "tailwindcss";
+
+@theme {
+  /* The whole palette. Tailwind's own colours are switched off. */
+  --color-*: initial;
+  --color-body: #323232; /* running text, the drawn line */
+  --color-muted: #838383; /* labels, status, secondary text */
+  --color-faint: #b4b4b4; /* every border */
+  --color-line: #e3e3e3; /* slider rail */
+  --color-page: #ffffff;
+  --color-link: #0000ee;
+}
+
+/* The interface is set in IM Fell English, loaded from Google Fonts in
+   app/layout.tsx. ABC Stefan (Dinamo, trial cut) is kept here only so it is
+   easy to switch back: change the first name in the font-family below. */
+@font-face {
+  font-family: "ABC Stefan";
+  src: url("/fonts/ABCStefan-Simple-Trial.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+html,
+body {
+  background: var(--color-page);
+  color: var(--color-body);
+  font-family: "IM Fell English", "Iowan Old Style", Palatino, Georgia, serif;
+  font-synthesis: none;
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+select,
+textarea,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+/* ---- Receipt ---------------------------------------------------------- */
+
+/* Text written by or sent to a model is set in the same typeface as the rest,
+   a little smaller and with room around it. */
+.receipt-raw {
+  font-size: 0.94em;
+  line-height: 1.6;
+  margin-block: 0.35em;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+/* Only the long raw dumps (instructions, JSON) stay monospaced: they are
+   opened on purpose and their indentation matters. */
+.receipt-raw.is-boxed {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.55;
+  margin-block: 0;
+  max-height: 22rem;
+  overflow: auto;
+}
+
+.receipt details > summary {
+  cursor: pointer;
+  color: var(--color-muted);
+  list-style: none;
+}
+.receipt details > summary::-webkit-details-marker {
+  display: none;
+}
+.receipt details > summary::before {
+  content: "+ ";
+}
+.receipt details[open] > summary::before {
+  content: "\2212  ";
+}
+.receipt details > summary:hover {
+  color: var(--color-body);
+}
+
+@keyframes receipt-wait {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.receipt-waiting {
+  animation: receipt-wait 1.4s ease-in-out infinite;
+}
+
+/* A step appears when the run reaches it, and eases in rather than popping. */
+.receipt-step {
+  animation: fade-in 900ms ease both;
+}
+
+/* ---- Prompt, typed straight onto the screen -------------------------- */
+
+/* A block exactly as big as its text: the invisible mirror sets the size and
+   the real field is laid over it in the same grid cell. */
+.prompt-sizer {
+  display: inline-grid;
+  max-width: 100%;
+  max-height: 100%;
+  min-width: 1ch;
+  font-size: 1.35em;
+  line-height: 1.45;
+  text-align: left;
+}
+.prompt-mirror,
+.prompt-field {
+  grid-area: 1 / 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.prompt-mirror {
+  visibility: hidden;
+  pointer-events: none;
+}
+.prompt-field {
+  width: 100%;
+  height: 100%;
+  transition: opacity 200ms ease;
+}
+/* Once sent, the words fade slowly away. Keep in step with PROMPT_FADE_MS. */
+.prompt-field.is-fading {
+  opacity: 0;
+  caret-color: transparent;
+  transition: opacity 2600ms ease-in;
+}
+
+/* ---- Drawing / Thinking switch ---------------------------------------- */
+
+.view-pill {
+  --pill-inset: 3px;
+  --pill-gap: 2px;
+  /* Half the marker's height, so its outer end is a true semicircle; and the
+     much tighter radius used on its inner end. Real lengths (not 9999px) so
+     the corners can animate smoothly from one to the other. */
+  --pill-round: 1.085em;
+  --pill-square: 0.38em;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--pill-gap);
+  padding: var(--pill-inset);
+  border: 1px solid var(--color-faint);
+  border-radius: 9999px;
+  background: var(--color-page);
+  transform: translateX(-50%);
+  animation: fade-in 1200ms ease both;
+}
+
+/* The selected marker. It sits under the left option with a fully rounded
+   outer (left) end and a squarer inner (right) end. When the view changes it
+   slides across and the corners swap, so the rounded end always hugs the
+   outside of the pill. */
+.view-pill-thumb {
+  position: absolute;
+  top: var(--pill-inset);
+  bottom: var(--pill-inset);
+  left: var(--pill-inset);
+  width: calc((100% - 2 * var(--pill-inset) - var(--pill-gap)) / 2);
+  /* A sheet of lightly frosted glass lying over the selected option: a faint
+     grey tint with a sheen across the top, a bright rim where the edge catches
+     the light, a hairline outside that, and a soft shadow underneath. It also
+     blurs whatever passes behind the pill. */
+  background:
+    linear-gradient(to bottom, rgb(255 255 255 / 0.75) 0%, rgb(255 255 255 / 0.1) 48%, rgb(255 255 255 / 0) 100%),
+    rgb(50 50 50 / 0.07);
+  backdrop-filter: blur(8px) saturate(1.2);
+  border: 1px solid rgb(255 255 255 / 0.85);
+  box-shadow:
+    0 0 0 0.5px rgb(50 50 50 / 0.22),
+    0 1px 2px rgb(50 50 50 / 0.1),
+    0 3px 8px -2px rgb(50 50 50 / 0.12),
+    inset 0 -1px 1px rgb(50 50 50 / 0.05);
+  border-radius: var(--pill-round) var(--pill-square) var(--pill-square) var(--pill-round);
+  transition:
+    transform 460ms cubic-bezier(0.3, 0.85, 0.25, 1),
+    border-radius 460ms cubic-bezier(0.3, 0.85, 0.25, 1);
+}
+.view-pill[data-view="thinking"] .view-pill-thumb {
+  transform: translateX(calc(100% + var(--pill-gap)));
+  border-radius: var(--pill-square) var(--pill-round) var(--pill-round) var(--pill-square);
+}
+
+.view-pill button {
+  position: relative;
+  /* The typeface sits high in its line box; 0.17em more padding on top centres the label. */
+  padding: 0.37em 1.15em 0.2em;
+  border-radius: 9999px;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 300ms;
+}
+.view-pill button:hover {
+  color: var(--color-body);
+}
+.view-pill button[aria-selected="true"] {
+  color: var(--color-body);
+}
+.view-pill button:focus-visible {
+  outline: 1px solid var(--color-body);
+  outline-offset: 2px;
+}
+
+.screen-canvas {
+  transition: opacity 400ms ease-out;
+}
+.screen-canvas.is-clearing {
+  opacity: 0;
+}
+/* Faded back while a new dream is being typed over it. */
+.screen-canvas.is-dimmed {
+  opacity: 0.12;
+}
+
+/* ---- The screen's edge: a drifting blur instead of a border ----------- */
+
+/* Both layers are a little larger than the screen, so they can drift without
+   ever uncovering a hard edge, and neither takes clicks. */
+.screen-haze,
+.screen-mist {
+  position: absolute;
+  inset: -4%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Blurs whatever is drawn underneath, but only in a band around the edge:
+   the mask is solid at the rim and clear across the middle. */
+.screen-haze {
+  /* Unprefixed only: the build adds vendor prefixes itself, and writing the
+     -webkit- form by hand made it drop the standard property. */
+  backdrop-filter: blur(7px);
+  mask-image:
+    linear-gradient(to right, #000 0%, #000 6%, transparent 21%, transparent 79%, #000 94%, #000 100%),
+    linear-gradient(to bottom, #000 0%, #000 7%, transparent 25%, transparent 75%, #000 93%, #000 100%);
+  animation: haze-drift 17s ease-in-out infinite alternate;
+}
+
+/* Then fades that blurred band away into the page colour. */
+.screen-mist {
+  background:
+    linear-gradient(to right, var(--color-page) 0%, var(--color-page) 5%, transparent 17%, transparent 83%, var(--color-page) 95%, var(--color-page) 100%),
+    linear-gradient(to bottom, var(--color-page) 0%, var(--color-page) 6%, transparent 21%, transparent 79%, var(--color-page) 94%, var(--color-page) 100%);
+  animation: mist-drift 23s ease-in-out infinite alternate;
+}
+
+/* Small, slow and out of step with each other, so the edge seems to breathe. */
+@keyframes haze-drift {
+  0% {
+    transform: translate(-0.7%, 0.5%) scale(1.01);
+  }
+  50% {
+    transform: translate(0.5%, -0.6%) scale(1.035);
+  }
+  100% {
+    transform: translate(0.8%, 0.6%) scale(1);
+  }
+}
+@keyframes mist-drift {
+  0% {
+    transform: translate(0.6%, -0.5%) scale(1.03);
+  }
+  50% {
+    transform: translate(-0.7%, 0.4%) scale(1);
+  }
+  100% {
+    transform: translate(-0.3%, 0.8%) scale(1.02);
+  }
+}
+
+/* ---- The same soft edge for scrolling text -------------------------- */
+
+/* A band pinned to the top or bottom of the window in the Thinking view.
+   Like the screen's edge it has two parts: ::before blurs the text passing
+   underneath, ::after fades it into the page. Text is crisp at the inner side
+   of the band and gone by the window's edge. */
+.scroll-veil {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 5; /* over the text, under the view pill */
+  pointer-events: none;
+}
+.scroll-veil.is-top {
+  top: 0;
+  /* Kept shallow so it costs little reading room. */
+  height: 4rem;
+  --veil-toward-edge: to top;
+  --veil-origin: top;
+}
+.scroll-veil.is-bottom {
+  bottom: 0;
+  height: 11rem;
+  --veil-toward-edge: to bottom;
+  --veil-origin: bottom;
+}
+.scroll-veil::before,
+.scroll-veil::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform-origin: var(--veil-origin);
+  will-change: transform;
+}
+.scroll-veil::before {
+  backdrop-filter: blur(7px);
+  mask-image: linear-gradient(var(--veil-toward-edge), transparent 0%, #000 55%, #000 100%);
+  animation: veil-breathe 17s ease-in-out infinite alternate;
+}
+.scroll-veil::after {
+  background: linear-gradient(var(--veil-toward-edge), transparent 0%, transparent 15%, var(--color-page) 78%, var(--color-page) 100%);
+  animation: veil-breathe 23s ease-in-out infinite alternate-reverse;
+}
+/* The band's inner edge rises and falls a little, in step with nothing. */
+@keyframes veil-breathe {
+  0% {
+    transform: scaleY(0.94);
+  }
+  100% {
+    transform: scaleY(1.08);
+  }
+}
+
+.screen-stylus {
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 9999px;
+  background: var(--color-body);
+}
+
+@keyframes screen-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+.screen-shaking {
+  animation: screen-shake 500ms ease-in-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.story-line {
+  animation: fade-in 400ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen-shaking,
+  .story-line,
+  .receipt-waiting,
+  .receipt-step,
+  .view-pill,
+  .screen-haze,
+  .screen-mist,
+  .scroll-veil::before,
+  .scroll-veil::after {
+    animation: none;
+  }
+  .prompt-field.is-fading,
+  .view-pill button,
+  .view-pill-thumb {
+    transition: none;
+  }
+}
