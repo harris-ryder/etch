@@ -65,9 +65,7 @@ Other commands, all from the repo root:
 ### The look
 
 The frontend is deliberately plain: a hairline rectangle for the screen, text
-controls, one typeface: ABC Stefan (Dinamo), in
-`frontend/public/fonts/ABCStefan-Simple-Trial.otf`. That file is the trial
-cut, so it needs a licence before the site is published.
+controls, one typeface: IM Fell English, loaded from Google Fonts.
 
 ## Layout
 

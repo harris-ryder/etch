@@ -12,15 +12,7 @@
 }
 
 /* The interface is set in IM Fell English, loaded from Google Fonts in
-   app/layout.tsx. ABC Stefan (Dinamo, trial cut) is kept here only so it is
-   easy to switch back: change the first name in the font-family below. */
-@font-face {
-  font-family: "ABC Stefan";
-  src: url("/fonts/ABCStefan-Simple-Trial.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
+   app/layout.tsx. */
 
 html,
 body {
