@@ -1,5 +1,5 @@
 import type { Scene, Style } from "../types";
-import type { ImageResult, SceneImageGenerator } from "../pipeline/image";
+import { withRejection, type ImageResult, type SceneImageGenerator } from "../pipeline/image";
 import { imagePromptFor } from "../pipeline/style";
 import { OpenAIScenePlanner, postJson, readImage, readUsage, type ApiUsage } from "./openai";
 
@@ -42,12 +42,14 @@ export class OpenRouterImageGenerator implements SceneImageGenerator {
 
   async generate(scene: Scene, style: Style): Promise<ImageResult> {
     const prompt = imagePromptFor(scene.prompt, style);
-    const payload = await postJson<ImagesResponse>({ ...this.config, headers: HEADERS }, "/images", {
-      model: this.config.imageModel,
-      prompt,
-      aspect_ratio: ASPECT,
-      ...(this.config.imageQuality ? { quality: this.config.imageQuality } : {}),
-    });
+    const payload = await withRejection(() =>
+      postJson<ImagesResponse>({ ...this.config, headers: HEADERS }, "/images", {
+        model: this.config.imageModel,
+        prompt,
+        aspect_ratio: ASPECT,
+        ...(this.config.imageQuality ? { quality: this.config.imageQuality } : {}),
+      }),
+    );
     return {
       image: await readImage(payload.data?.[0]),
       receipt: {

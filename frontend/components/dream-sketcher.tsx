@@ -13,7 +13,7 @@ const SHAKE_MS = 500;
 /** How long the submitted prompt takes to fade from the screen. Matches `.prompt-field.is-fading`. */
 const PROMPT_FADE_MS = 2600;
 /** Canvas units per second. There is no speed control any more. */
-const DRAW_SPEED = 3000;
+const DRAW_SPEED = 6000;
 
 export function DreamSketcher() {
   const canvas = useRef<HTMLCanvasElement | null>(null);

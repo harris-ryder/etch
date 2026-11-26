@@ -6,23 +6,26 @@ import type { Style } from "../types";
  * This is the one place to change it. The planner is told about it so that it
  * composes for it, and it is appended to every image prompt.
  *
- * It has two jobs. One is taste: abstract rather than illustrative, with a
- * hand of its own. The other is practical: the tracer follows the centre of
- * each stroke, so it needs clean black line on white, with no fills or greys.
+ * It has one job: taste. The image model draws the rough pencil sketch
+ * itself, with its searching lines, construction marks and faint and firm
+ * strokes, because a real sketch is loose where the form is uncertain and no
+ * filter added afterwards can know where that is. The tracer is built to keep
+ * all of it (`sketchMask`, `pressureStrokes`); it only needs black pencil on
+ * white paper, with no wash or smudging.
  */
 export const HOUSE_STYLE = [
-  "Drawn in a single distinctive hand: an abstract continuous-line drawing, as if the whole picture were bent from one long piece of black wire that never breaks.",
-  "Everything is reduced to its barest gesture. Figures, animals and buildings are simplified into bold, slightly wrong, elongated shapes; faces are a single loop or left empty; nothing is rendered realistically.",
-  "The line wanders, loops and doubles back on itself, passing straight through one form and on into the next, so that separate things are stitched together by the same thread.",
-  "Volume and weight are suggested only by echo lines: a contour repeated in loose parallel rings, like the lines on a map or the grain in wood. Never shading.",
-  "Proportion and perspective are dreamlike and off-balance: scale shifts, horizons tilt, large areas of the paper are left empty.",
-  "One even, medium-weight black line on plain white paper. No solid fills, no grey, no hatching blocks, no colour, no texture, no text, no border, no frame, no signature.",
-  "The picture reaches towards all four edges of a landscape sheet, composed as one finished drawing.",
+  "A fast, rough gesture drawing in black pencil on plain white paper, done from memory in about a minute by someone who draws every day.",
+  "The lines search for the form: contours are drawn two or three times, loosely, never in quite the same place. Some lines are pressed hard and dark, most are light and faint.",
+  "Construction marks are left in: rough circles for heads, hands and joints, boxes for furniture, a centre line down a figure.",
+  "Mass is built with quick scribbled coils and a few dashes of hatching, not with shading. Much of it is unfinished and trails off into bare paper.",
+  "Human, awkward and unpolished: plain observed proportions, faces barely indicated. The impossible thing in the dream is drawn as plainly as everything else.",
+  "Not a cartoon, not an illustration, not cute, not tidy.",
+  "Black pencil line only: no grey wash, no smudging, no tone, no colour, no text, no border, no signature. One drawing on a landscape sheet, with the main thing large.",
 ].join(" ");
 
 /** A short description of the house style for the planner, so that it composes for it. */
 export const HOUSE_STYLE_BRIEF =
-  "an abstract continuous-line drawing, like a sculpture bent from one unbroken wire: forms reduced to bare gestures, slightly wrong and elongated, stitched together by a line that wanders through all of them, with volume shown by repeated echo contours rather than shading, and a lot of empty paper";
+  "a fast, rough pencil gesture drawing done from memory: searching overlapping lines, construction circles and boxes left in, scribbled mass, plain observed proportions, faces barely indicated, much of it unfinished and trailing off into bare paper. Never cartoonish, cute or tidy";
 
 /** Extra direction for the tracing styles that read tone rather than line. */
 const TONAL: Record<Exclude<Style, "line">, string> = {

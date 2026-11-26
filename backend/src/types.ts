@@ -108,7 +108,7 @@ export type DrawEvent =
       partId: string;
       name: string;
       narration: string;
-      /** This part of the drawing, as one continuous polyline in canvas units. */
+      /** This part of the drawing, as one continuous polyline in canvas units. Firm strokes are gone over several times. */
       points: CanvasPoint[];
       /** The move from the end of the previous part to `points[0]` (empty for the first part). */
       connector: CanvasPoint[];

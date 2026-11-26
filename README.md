@@ -122,12 +122,22 @@ Each stage is its own module behind a small interface in
    the house style.
 
    **The house style lives in `backend/src/pipeline/style.ts`** (`HOUSE_STYLE`).
-   It is what gives every drawing the same hand: an abstract continuous-line
-   drawing, forms reduced to bare gestures, volume shown by echo contours, a
-   lot of empty paper. Edit that one constant to change the look of
-   everything. It also keeps the image traceable: even black line on white,
-   no fills.
-4. **Raster to path.** `sharp` decodes, greyscales and resizes to 1024 px on
+   It asks the image model to draw a rough pencil sketch itself: searching
+   lines drawn two or three times, construction circles and boxes left in,
+   scribbled mass, faint and firm strokes, much of it unfinished. A real
+   sketch is loose where the form is uncertain, which no filter added
+   afterwards can imitate. Edit that one constant to change the look.
+
+   **The tracer is built to keep the sketch.** `sketchMask`
+   (`pipeline/raster.ts`) compares each pixel with the paper around it, so
+   faint strokes survive where a single cut-off would drop them, and the
+   picture is traced at 1536 px so close strokes stay apart.
+   `pressPath` (`pipeline/pressure.ts`) then puts the pencil's pressure
+   back. An Etch A Sketch has one line and cannot draw it darker or paler,
+   so where the pencil was firm the pen goes back and forth over that
+   stretch three or five times, each pass a hair to one side, and where it
+   was faint it passes once.
+4. **Raster to path.** `sharp` decodes, greyscales and resizes to 1536 px (1024 px for the tonal styles) on
    the long side; from there it is plain TypeScript in `geometry/`:
    - Otsu threshold to an ink mask.
    - `line` (the default, `traceLineParts`): Zhang–Suen thinning of the WHOLE

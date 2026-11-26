@@ -1,6 +1,6 @@
 import type { Scene, Style, Usage } from "../types";
-import type { ImageResult, SceneImageGenerator } from "../pipeline/image";
-import { MAX_PARTS, normaliseScene, type PlanResult, type ScenePlanner } from "../pipeline/planner";
+import { withRejection, type ImageResult, type SceneImageGenerator } from "../pipeline/image";
+import { MAX_PARTS, normaliseScene, type PlanOptions, type PlanResult, type ScenePlanner } from "../pipeline/planner";
 import { HOUSE_STYLE_BRIEF, imagePromptFor } from "../pipeline/style";
 
 export interface OpenAIConfig {
@@ -46,6 +46,9 @@ The "parts":
 - Use 3 to ${MAX_PARTS}. They are regions of the same picture, not separate images, and are only used to decide the order of drawing and what the storyteller says. Order them so the drawing unfolds like a story: the ground or setting first, then the main form, then the details.
 - Together the boxes should cover everything in the picture. The setting's box can span the whole sheet; give each other thing a tighter box around where your description puts it. Where boxes overlap, the smaller box takes that area.
 - Keep every box inside the sheet (x + w <= 1, y + h <= 1) and at least 0.15 wide and tall.`;
+
+/** Added to the dream when the image model's safety filter refused the first description. */
+const GENTLER_NOTE = `An image model refused to draw your last description of this dream. Describe it again so that it will be accepted: keep the feeling and the essential image, but suggest rather than show. Nothing violent, bloody, sexual or frightening in the wording; no weapons, wounds, nudity or drugs; no real people, brands or named characters. Turn anything like that into a plain object, a shape or an absence.`;
 
 export interface ApiUsage {
   prompt_tokens?: number;
@@ -115,8 +118,8 @@ export class OpenAIScenePlanner implements ScenePlanner {
     private readonly provider = "openai",
   ) {}
 
-  async plan(text: string): Promise<PlanResult> {
-    const user = `The dream:\n${text}`;
+  async plan(text: string, options: PlanOptions = {}): Promise<PlanResult> {
+    const user = `The dream:\n${text}${options.gentler ? `\n\n${GENTLER_NOTE}` : ""}`;
     let lastError: unknown;
     // The model occasionally returns a shape zod rejects; one retry is usually enough.
     for (let attempt = 1; attempt <= 2; attempt++) {
@@ -172,13 +175,15 @@ export class OpenAIImageGenerator implements SceneImageGenerator {
 
   async generate(scene: Scene, style: Style): Promise<ImageResult> {
     const prompt = imagePromptFor(scene.prompt, style);
-    const payload = await postJson<ImageResponse>(this.config, "/images/generations", {
-      model: this.config.imageModel,
-      prompt,
-      size: SIZE,
-      quality: this.config.imageQuality,
-      n: 1,
-    });
+    const payload = await withRejection(() =>
+      postJson<ImageResponse>(this.config, "/images/generations", {
+        model: this.config.imageModel,
+        prompt,
+        size: SIZE,
+        quality: this.config.imageQuality,
+        n: 1,
+      }),
+    );
     return {
       image: await readImage(payload.data?.[0]),
       receipt: {

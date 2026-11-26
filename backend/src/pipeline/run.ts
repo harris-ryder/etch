@@ -2,10 +2,11 @@ import sharp from "sharp";
 import { pathLength } from "../geometry/types";
 import type { DrawEvent, PartTrace, Style } from "../types";
 import { applyPlacement, canvasPlacement, splitIntoParts } from "./compose";
-import type { SceneImageGenerator } from "./image";
+import { ImageRejectedError, type ImageResult, type SceneImageGenerator } from "./image";
 import { Linker } from "./link";
 import type { ScenePlanner } from "./planner";
-import { loadRaster, type Raster } from "./raster";
+import { pressPath } from "./pressure";
+import { loadRaster, RASTER_SIZE, SKETCH_SIZE, type Raster } from "./raster";
 import { rasterToPath, traceLineParts } from "./vectorise";
 
 export interface PipelineDeps {
@@ -65,14 +66,29 @@ export async function* runPipeline(request: PipelineRequest, deps: PipelineDeps)
     const style: Style = request.styleOverride ?? "line";
 
     const planStarted = performance.now();
-    const { scene, receipt: planReceipt } = await deps.planner.plan(request.text);
+    let { scene, receipt: planReceipt } = await deps.planner.plan(request.text);
     yield { type: "plan", ...planReceipt, durationMs: Math.round(performance.now() - planStarted) };
     yield { type: "scene", scene };
 
-    const imageStarted = performance.now();
-    const { image, receipt } = await deps.images.generate(scene, style);
+    let imageStarted = performance.now();
+    let result: ImageResult;
+    try {
+      result = await deps.images.generate(scene, style);
+    } catch (error) {
+      if (!(error instanceof ImageRejectedError)) throw error;
+      // The image model's safety filter refused the description. Plan the dream once
+      // more, gently, and try again; the new plan replaces the first on the receipt.
+      const replanStarted = performance.now();
+      ({ scene, receipt: planReceipt } = await deps.planner.plan(request.text, { gentler: true }));
+      yield { type: "plan", ...planReceipt, durationMs: Math.round(performance.now() - replanStarted) };
+      yield { type: "scene", scene };
+      imageStarted = performance.now();
+      result = await deps.images.generate(scene, style);
+    }
+    const { image, receipt } = result;
     const imageMs = Math.round(performance.now() - imageStarted);
-    const [raster, thumb] = await Promise.all([loadRaster(image), thumbnail(image)]);
+    // A line drawing is a pencil sketch: it needs a finer raster and a mask that keeps its faint strokes.
+    const [raster, thumb] = await Promise.all([loadRaster(image, style === "line" ? SKETCH_SIZE : RASTER_SIZE, style === "line"), thumbnail(image)]);
     yield { type: "image", ...receipt, durationMs: imageMs, width: thumb.width, height: thumb.height, image: thumb.url };
 
     const placement = canvasPlacement(raster);
@@ -95,7 +111,10 @@ export async function* runPipeline(request: PipelineRequest, deps: PipelineDeps)
       // The one whole-picture trace is counted against the first part.
       const traceMs = Math.round(performance.now() - partStarted) + (linePaths && drawn === 0 ? lineMs : 0);
       if (path.length < 2) continue;
-      const { points, connector } = linker.add(path);
+      const linked = linker.add(path);
+      const { connector } = linked;
+      // The pencil pressed harder in some places than others. The pen cannot, so it goes over those places several times.
+      const points = style === "line" ? pressPath(linked.points, raster.grey, placement) : linked.points;
       drawn++;
 
       const connectorLength = pathLength(connector);

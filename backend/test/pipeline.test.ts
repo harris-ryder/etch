@@ -248,9 +248,10 @@ describe("POST /draw (stubbed providers)", () => {
       }
       if (pen) {
         // The pen never lifts: the connector starts where the last part ended and ends where this one starts.
-        expect(part.connector.length).toBeGreaterThanOrEqual(2);
-        expect(dist(part.connector[0]!, pen)).toBeLessThan(1.5);
-        expect(part.connector[part.connector.length - 1]).toEqual(part.points[0]!);
+        // (No connector at all means this part starts exactly where the pen already is.)
+        const bridge = part.connector.length > 0 ? part.connector : [part.points[0]!];
+        expect(dist(bridge[0]!, pen)).toBeLessThan(1.5);
+        expect(bridge[bridge.length - 1]).toEqual(part.points[0]!);
       } else {
         expect(part.connector).toEqual([]);
       }
@@ -279,7 +280,7 @@ describe("POST /draw (stubbed providers)", () => {
     for (const part of parts) {
       const { trace } = part;
       expect(trace.style).toBe("line");
-      expect(trace.raster).toEqual([1024, 683]);
+      expect(trace.raster).toEqual([1536, 1024]);
       expect(trace.points).toBe(part.points.length);
       expect(trace.length).toBeGreaterThan(100);
       expect(trace.ink).toBeGreaterThan(0);

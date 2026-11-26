@@ -2,7 +2,12 @@ import { SceneSchema, type PlanReceipt, type Scene } from "../types";
 
 /** Stage 2: turns dream text into a description of one picture, and the parts to draw it in. */
 export interface ScenePlanner {
-  plan(text: string): Promise<PlanResult>;
+  plan(text: string, options?: PlanOptions): Promise<PlanResult>;
+}
+
+export interface PlanOptions {
+  /** Set when the image model refused the first description: plan it again, more gently. */
+  gentler?: boolean;
 }
 
 export interface PlanResult {
