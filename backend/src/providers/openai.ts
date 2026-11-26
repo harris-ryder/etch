@@ -35,15 +35,16 @@ Reply with JSON only, in exactly this shape:
   ]
 }
 
-The "prompt" (5 to 8 sentences):
-- Do not illustrate the dream literally. Find its one essential image and say it with as few things as possible: an abstraction, a distillation, closer to a symbol or a gesture than to a scene. Leave things out. A dream of a city on an elephant's back is a great curved back with a few towers growing out of it like hairs, not an inventory of buildings.
-- Describe ONE picture, composed as a whole on a landscape sheet: what the main form is and how large (it should be large, and can run off an edge), where each other thing sits relative to it (left, right, above, behind, far off), and what is left as empty paper. Be exact about placement, because your boxes below must match it.
-- Say how the forms flow into each other, since everything is one line: what the ground line becomes, what grows out of what, which shapes share an edge. Nothing should float unconnected.
+The "prompt" (6 to 9 sentences):
+- A dream is always a scene, never an object. Describe a moment in a story: a place, who or what is in it, and something happening. Even if the dream names only one thing ("a bus full of beds"), build the scene around it: where it is, what time of day, who is there and what they are doing, what is about to happen. Invent whatever the dreamer left out, in the spirit of the dream, as a person does when retelling one.
+- Every picture has three things: a setting that places it (a street, a shoreline, a room, a field, with a horizon or walls and something in the distance), at least one figure or creature doing something, and the strange thing the dream is about. The strange thing is part of the scene, not a specimen shown on its own: it takes up no more than about half the sheet, and the rest is the world around it.
+- Show the story through action and relationship: someone climbing in, waiting, running after, looking back, carrying something. One clear thing is happening, and a second smaller thing is going on somewhere else in the picture.
+- Describe ONE picture, composed as a whole on a landscape sheet with foreground, middle and distance: where each thing sits relative to the others (left, right, in front, far off). Keep everything inside the sheet with a little margin; nothing important is cut off by an edge. Be exact about placement, because your boxes below must match it.
 - Honour the specifics of the dream. If it says Mars, there are craters and two moons. Never fall back on a generic house, tree and sun.
-- No text, lettering, borders or frames.
+- Keep it drawable: a handful of things, not a crowd. No text, lettering, borders or frames.
 
 The "parts":
-- Use 3 to ${MAX_PARTS}. They are regions of the same picture, not separate images, and are only used to decide the order of drawing and what the storyteller says. Order them so the drawing unfolds like a story: the ground or setting first, then the main form, then the details.
+- Use 3 to ${MAX_PARTS}. They are regions of the same picture, not separate images, and are only used to decide the order of drawing and what the storyteller says. Order them so the drawing unfolds like a story: the setting first, then the strange thing, then the figures and what they are doing.
 - Together the boxes should cover everything in the picture. The setting's box can span the whole sheet; give each other thing a tighter box around where your description puts it. Where boxes overlap, the smaller box takes that area.
 - Keep every box inside the sheet (x + w <= 1, y + h <= 1) and at least 0.15 wide and tall.`;
 

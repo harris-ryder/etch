@@ -20,7 +20,7 @@ export const HOUSE_STYLE = [
   "Mass is built with quick scribbled coils and a few dashes of hatching, not with shading. Much of it is unfinished and trails off into bare paper.",
   "Human, awkward and unpolished: plain observed proportions, faces barely indicated. The impossible thing in the dream is drawn as plainly as everything else.",
   "Not a cartoon, not an illustration, not cute, not tidy.",
-  "Black pencil line only: no grey wash, no smudging, no tone, no colour, no text, no border, no signature. One drawing on a landscape sheet, with the main thing large.",
+  "Black pencil line only: no grey wash, no smudging, no tone, no colour, no text, no border, no signature. One drawing of a whole scene on a landscape sheet: a place with figures in it and something happening, never a single object on its own, with a margin of bare paper on every side.",
 ].join(" ");
 
 /** A short description of the house style for the planner, so that it composes for it. */
