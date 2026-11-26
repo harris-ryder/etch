@@ -88,7 +88,7 @@ describe("provider selection", () => {
     expect(providersFromEnv({ OPENAI_API_KEY: "k" })!.name).toBe("openai");
     const both = providersFromEnv({ OPENAI_API_KEY: "k", OPENROUTER_API_KEY: "k" })!;
     expect(both.name).toBe("openrouter");
-    expect(both.models).toEqual({ text: "openai/gpt-6-luna", image: "openai/gpt-image-2" });
+    expect(both.models).toEqual({ text: "openai/gpt-6-luna", image: "krea/krea-2-medium-turbo" });
     expect(providersFromEnv({ OPENAI_API_KEY: "k", OPENROUTER_API_KEY: "k", ETCH_PROVIDER: "openai" })!.name).toBe("openai");
     expect(() => providersFromEnv({ ETCH_PROVIDER: "openrouter" })).toThrow();
   });

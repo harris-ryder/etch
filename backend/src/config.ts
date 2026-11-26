@@ -32,7 +32,7 @@ export function providersFromEnv(env: Record<string, string | undefined> = proce
   }
 
   if (requested === "openrouter" || (requested === "auto" && openRouterKey)) {
-    const imageModel = value("OPENROUTER_IMAGE_MODEL") ?? "openai/gpt-image-2";
+    const imageModel = value("OPENROUTER_IMAGE_MODEL") ?? "krea/krea-2-medium-turbo";
     const config: OpenRouterConfig = {
       apiKey: openRouterKey!,
       baseUrl: value("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1",

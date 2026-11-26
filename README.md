@@ -118,7 +118,7 @@ Each stage is its own module behind a small interface in
    told to distil the dream rather than illustrate it. The reply is validated
    with zod and tidied by `normaliseScene`.
 3. **The picture.** One image-model call makes the whole finished picture, in
-   landscape, at medium quality by default (`OPENROUTER_IMAGE_QUALITY`). The prompt is the planner's description plus
+   landscape (`OPENROUTER_IMAGE_QUALITY` sets the quality for models that take one). The prompt is the planner's description plus
    the house style.
 
    **The house style lives in `backend/src/pipeline/style.ts`** (`HOUSE_STYLE`).
@@ -196,7 +196,7 @@ OpenAI if `OPENAI_API_KEY` is set), or `openrouter` or `openai` to force one.
 
 | Provider | Planner | Images | Defaults |
 | --- | --- | --- | --- |
-| `openrouter` | `POST /chat/completions` | `POST /images` | `openai/gpt-6-luna`, `openai/gpt-image-2` |
+| `openrouter` | `POST /chat/completions` | `POST /images` | `openai/gpt-6-luna`, `krea/krea-2-medium-turbo` |
 | `openai` | `POST /chat/completions` (JSON mode) | `POST /images/generations` | `gpt-4.1-mini`, `gpt-image-1` |
 
 With OpenRouter you can swap either model from `.env` without code changes:
